@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 int main(int argc, char *argv[])
 {
@@ -19,8 +20,15 @@ int main(int argc, char *argv[])
     }
     else
     { // parent goes down this path (main)
-        int wc = wait(NULL);
+        int stat;
+        int wc = wait(&stat);
+        if (WIFEXITED(stat))
+            printf("Exit status: %d\n", WEXITSTATUS(stat));
+        else if (WIFSIGNALED(stat))
+            psignal(WTERMSIG(stat), "Exit signal");
+        // int wc = wait(NULL);
+
         printf("hello, I am parent of %d (wc:%d) (pid:%d)\n", rc, wc, (int)getpid());
     }
     return 0;
- }
+}
